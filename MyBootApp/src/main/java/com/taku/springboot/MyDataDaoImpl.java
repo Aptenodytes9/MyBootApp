@@ -54,6 +54,17 @@ public class MyDataDaoImpl implements MyDataDao<MyData> {
 	@Override
 	public List<MyData> find(String fstr) {
 		List<MyData> result = null;
+		CriteriaBuilder builder = entityManager.getCriteriaBuilder();
+		CriteriaQuery<MyData> query = builder.createQuery(MyData.class);
+		Root<MyData> root = query.from(MyData.class);
+		query.select(root).where(builder.equal(root.get("name"), fstr));
+		result = (List<MyData>)entityManager.createQuery(query).getResultList();
+		return result;
+	}
+	
+/*	@Override
+	public List<MyData> find(String fstr) {
+		List<MyData> result = null;
 		Long fid = 0L;
 		try {
 			fid = Long.parseLong(fstr);
@@ -64,7 +75,7 @@ public class MyDataDaoImpl implements MyDataDao<MyData> {
 				setParameter("fname", "%" + fstr + "%");
 		result = query.getResultList();
 		return result;
-	}
+	}*/
 
 	@Override
 	public List<MyData> findByAge(int min , int max) {
