@@ -5,6 +5,8 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
@@ -14,6 +16,11 @@ import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.NotEmpty;
 
 @Entity
+@NamedQueries(
+	value = {
+		@NamedQuery(name = "findWithName", query = "from MyData where name like :fname"),
+		@NamedQuery(name= "findByAge", query = "from MyData where age > :min and age < :max")}
+)
 @Table(name="mydata")
 public class MyData {
 	@Id
