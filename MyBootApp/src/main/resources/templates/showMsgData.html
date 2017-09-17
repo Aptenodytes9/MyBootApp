@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8" content="text/html" http-equiv="Content-Type">
+	<title th:text="${title}">Top Page</title>
+	<style type="text/css">
+		h1 {font-size:18pt; font-weight:hold; color:grey;}
+		body {font-size:13pt; color:gray; margin:5px 25px;}
+		pre {border:solid 3px #ddd; padding : 10px;}
+		tr {margin:5px;}
+		th {padding:5px; color:white; background:darkgray;}
+		td {padding:5px; color:black; background:#e0e0ff;}
+		.err {color:red;}
+	</style>
+</head>
+<body>
+	<h1 th:text="${title}">MyMsgData Page</h1>
+	<p th:text="${msg}"></p>
+	<table>
+		<form method="post" action="/msg" th:object="${formModel}">
+		<input type="hidden" name="id" value="*{id}"/>
+		<tr><td><label for="title">タイトル</label></td>
+			<td><input type="text" name="title" value="*{title}"/></td></tr>
+		<tr><td><label for="message">メッセージ</label></td>
+			<td><textarea type="text" name="message" value="*{message}"></textarea></td></tr>
+		<tr><td><label for="mydata">MYDATA_ID</label></td>
+			<td><input type="text" name="mydata"/></td></tr>
+		<tr><td></td><td><input type="submit" /></td></tr>
+		</form>
+	</table>
+	</hr>
+	<table>
+		<tr><th>ID</th><th>Name</th><th>Title</th></tr>
+		<tr th:each="obj : ${datalist}">
+			<td th:text="${obj.id}"></td>
+			<td th:text="${obj.mydata.name}"></td>
+			<td th:text="${obj.title}"></td>
+		</tr>
+	</table>
+</body>
+</html>

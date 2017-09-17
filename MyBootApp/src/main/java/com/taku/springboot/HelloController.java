@@ -20,13 +20,15 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
+import com.taku.springboot.repositories.MyDataMongoRepository;
 import com.taku.springboot.repositories.MyDataRepository;
 
 @Controller
 public class HelloController {
 	
 	@Autowired
-	MyDataRepository repository;
+	MyDataMongoRepository repository;
+	//MyDataRepository repository;
 	
 	@PersistenceContext
 	EntityManager entityManager;
@@ -34,13 +36,11 @@ public class HelloController {
 	MyDataDaoImpl dao;
 	
 	@RequestMapping(value="/", method = RequestMethod.GET)
-	public ModelAndView index (ModelAndView mav, 
-			@ModelAttribute("formModel") MyData mydata) {
+	public ModelAndView index (ModelAndView mav) {
 		mav.setViewName("index");
-		mav.addObject("msg", "This is contents...");
-		mav.addObject("formModel", mydata);
-		//Iterable<MyData> list = repository.findAllOrderByName();
-		Iterable<MyData> list = dao.getAll();
+		mav.addObject("title", "Find Page");
+		mav.addObject("msg", "This is MyDataMongo sample contents...");
+		Iterable<MyDataMongo> list = repository.findAll();
 		mav.addObject("datalist", list);
 		return mav;
 	}
@@ -48,25 +48,15 @@ public class HelloController {
 	@RequestMapping(value="/", method = RequestMethod.POST)
 	@Transactional(readOnly = false)
 	public ModelAndView form(
-			@ModelAttribute("formModel") 
-			@Validated MyData mydata,
-			BindingResult result, 
+			@RequestParam("name") String name,
+			@RequestParam("project") String project,
 			ModelAndView mav) {
-		ModelAndView res = null;
-		if(!result.hasErrors()){
-			repository.saveAndFlush(mydata);
-			res = new ModelAndView("redirect:/");
-		} else {
-			mav.setViewName("index");
-			mav.addObject("msg", "sorry, error is occured...");
-			Iterable<MyData> list = repository.findAll();
-			mav.addObject("datalist", list);
-			res = mav;
-		}
-		return res;
+		MyDataMongo mydata = new MyDataMongo(name, project);
+		repository.save(mydata);
+		return new ModelAndView("redirect:/");
 	}
 	
-	@RequestMapping(value="/edit/{id}", method = RequestMethod.GET)
+	/*@RequestMapping(value="/edit/{id}", method = RequestMethod.GET)
 	public ModelAndView edit (@ModelAttribute MyData mydata, @PathVariable int id, ModelAndView mav) {
 		mav.setViewName("edit");
 		mav.addObject("title", "edit mydata...");
@@ -80,25 +70,46 @@ public class HelloController {
 	public ModelAndView update(@ModelAttribute MyData mydata,ModelAndView mav){
 		repository.saveAndFlush(mydata);
 		return new ModelAndView("redirect:/");
-	}
-	
-	@RequestMapping(value="delete/{id}", method=RequestMethod.GET)
-	public ModelAndView delete (@PathVariable int id, ModelAndView mav) {
-		mav.setViewName("delete");
-		mav.addObject("title", "delete mydata...");
-		MyData mydata = repository.findById((long)id);
-		mav.addObject("formModel", mydata);
-		return mav;
-	}
+	}*/ 
 	
 	@RequestMapping(value="/delete", method = RequestMethod.POST)
 	@Transactional(readOnly=false)
-	public ModelAndView remove (@RequestParam long id, ModelAndView mav){
-		repository.delete(id);
+	public ModelAndView remove (@RequestParam("delete") String param, ModelAndView mav){
+		mav.setViewName("index");
+		if(param != null && !"".equals(param)){
+			repository.deleteByName(param);
+		}
 		return new ModelAndView("redirect:/");
 	}
 	
 	@RequestMapping(value="/find", method=RequestMethod.GET)
+	public ModelAndView find(ModelAndView mav){
+		mav.setViewName("index");
+		mav.addObject("title", "Find Page");
+		mav.addObject("msg", "MyData sample");
+		mav.addObject("value", "");
+		Iterable<MyDataMongo> list = repository.findAll();
+		//Iterable<MyData> list = repository.findAllOrderByName();
+		mav.addObject("datalist", list);
+		return mav;
+	}
+	
+	@RequestMapping(value="/find", method=RequestMethod.POST)
+	public ModelAndView search(ModelAndView mav, @RequestParam("find") String param){
+		mav.setViewName("index");
+		if(param == null || "".equals(param)){
+			mav = new ModelAndView("redirect:/find");
+		} else {
+			mav.addObject("title", "Find result");
+			mav.addObject("msg", "[" + param + "]の検索結果");
+			mav.addObject("value", param);
+			List<MyDataMongo> result = repository.findByName(param);
+			mav.addObject("datalist", result);
+		}
+		return mav;
+	}
+	
+	/*@RequestMapping(value="/find", method=RequestMethod.GET)
 	public ModelAndView find(ModelAndView mav){
 		mav.setViewName("find");
 		mav.addObject("title", "Find Page");
@@ -124,7 +135,7 @@ public class HelloController {
 			mav.addObject("datalist", result);
 		}
 		return mav;
-	}
+	}*/
 	
 	@PostConstruct
 	public void init() {
@@ -149,10 +160,10 @@ public class HelloController {
 		d4.setAge(99);
 		d4.setMail("sample@www.com");
 		d4.setMemo("01205556666");
-		repository.saveAndFlush(d1);
+/*		repository.saveAndFlush(d1);
 		repository.saveAndFlush(d2);
 		repository.saveAndFlush(d3);
-		repository.saveAndFlush(d4);
+		repository.saveAndFlush(d4);*/
 	}
 	
 	@RequestMapping("/other")
