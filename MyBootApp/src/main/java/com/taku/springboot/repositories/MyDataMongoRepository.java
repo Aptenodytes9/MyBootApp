@@ -8,4 +8,5 @@ import com.taku.springboot.MyDataMongo;
 public interface MyDataMongoRepository extends MongoRepository<MyDataMongo, Long>{
 	public List<MyDataMongo> findByName(String str);
 	public void deleteByName(String param);
+	public MyDataMongo findById(String id);
 }

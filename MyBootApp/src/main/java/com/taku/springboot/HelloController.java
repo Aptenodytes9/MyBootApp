@@ -1,34 +1,27 @@
 package com.taku.springboot;
 
+import java.util.Date;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.taku.springboot.repositories.MyDataMongoRepository;
-import com.taku.springboot.repositories.MyDataRepository;
 
 @Controller
 public class HelloController {
 	
 	@Autowired
 	MyDataMongoRepository repository;
-	//MyDataRepository repository;
 	
 	@PersistenceContext
 	EntityManager entityManager;
@@ -51,26 +44,23 @@ public class HelloController {
 			@RequestParam("name") String name,
 			@RequestParam("project") String project,
 			ModelAndView mav) {
-		MyDataMongo mydata = new MyDataMongo(name, project);
+		Date startTime = new Date();
+		Date finishTime = new Date();
+		MyDataMongo mydata = new MyDataMongo(name, project, startTime, finishTime);
 		repository.save(mydata);
 		return new ModelAndView("redirect:/");
 	}
 	
-	/*@RequestMapping(value="/edit/{id}", method = RequestMethod.GET)
-	public ModelAndView edit (@ModelAttribute MyData mydata, @PathVariable int id, ModelAndView mav) {
-		mav.setViewName("edit");
-		mav.addObject("title", "edit mydata...");
-		MyData data = repository.findById((long)id);
-		mav.addObject("formModel", data);
-		return mav;
-	}
-	
-	@RequestMapping(value="/edit", method = RequestMethod.POST)
+	@RequestMapping(value="/updateFinishTime", method = RequestMethod.POST)
 	@Transactional(readOnly=false)
-	public ModelAndView update(@ModelAttribute MyData mydata,ModelAndView mav){
-		repository.saveAndFlush(mydata);
+	public ModelAndView updateFinishTime (
+			@RequestParam("id") String id,
+			ModelAndView mav){
+		MyDataMongo record = repository.findById(id);
+		record.setFinishTime(new Date());
+		repository.save(record);
 		return new ModelAndView("redirect:/");
-	}*/ 
+	}
 	
 	@RequestMapping(value="/delete", method = RequestMethod.POST)
 	@Transactional(readOnly=false)

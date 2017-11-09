@@ -1,0 +1,11 @@
+.projectTimer {
+	margin: auto;
+	width: 500px;
+	height: 125px;
+	padding: 0px;
+	box-sizing: border-box;
+	background-color: #E0E8EF;
+}
+.buttonContainer {
+	text-align: center;
+}
